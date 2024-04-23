@@ -1,9 +1,13 @@
 ﻿
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 namespace cat.itb.M6UF3EA1.Models
 {
     public class People : Model<People>
     {
+        [BsonElement("_id")]
+        [BsonId]
+        public int Id { get; set; }
         public bool isActive { get; set; }
         public string balance { get; set; }
         public string picture { get; set; }

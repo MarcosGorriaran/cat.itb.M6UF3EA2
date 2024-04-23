@@ -4,16 +4,17 @@
     {
         private string title;
         private string askValueMsg;
-        private List<string> elements;
-        public Menu(string title, IEnumerable<String> elements, string askValueMsg) 
-        {
-            this.title = Title;
-            elements = elements.ToList();
+        private Dictionary<string, string> elements;
 
+        public Menu(string title,Dictionary<string,string> elements, string askValueMsg)
+        {
+            this.Title = Title;
+            this.Elements = elements;
+            this.AskValueMsg = askValueMsg;
         }
-        public Menu (IEnumerable<string> elements, string askValueMsg):this(string.Empty,elements,askValueMsg) { }
-        public Menu (IEnumerable<string> elements):this(elements, string.Empty) {}
-        public Menu ():this(new List<string>()) { }
+        public Menu (Dictionary<string, string> elements, string askValueMsg):this(string.Empty,elements,askValueMsg) { }
+        public Menu (Dictionary<string, string> elements) :this(elements, string.Empty) {}
+        public Menu ():this(new Dictionary<string, string>()) { }
         public string Title
         {
             get { return title; }
@@ -24,25 +25,41 @@
             get { return askValueMsg; }
             set { askValueMsg = value; }
         }
-        public List<string> Elements
+        public Dictionary<string,string> Elements
         {
-            get { return Elements; }
-            set { Elements = value; }
-        }
-        public string ToConsoleMenu(string spliterIndexElement)
-        {
-            string result = string.Empty;
-            if(Title == string.Empty)
-            {
-                result += Title+Environment.NewLine;
-            }
-            for(int i = 0; i<Elements.Count(); i++)
-            {
-                result += $"{i + 1}{spliterIndexElement}{Elements[i]}{Environment.NewLine}";
-            }
-
-            return result+AskValueMsg;
+            get { return elements; }
+            set { elements = value; }
         }
         
+        public override string ToString()
+        {
+            string result = string.Empty;
+            if (Title == string.Empty)
+            {
+                result += Title + Environment.NewLine;
+            }
+            foreach (KeyValuePair<string, string> element in Elements)
+            {
+                result += $"{element.Key}{element.Value}{Environment.NewLine}";
+            }
+
+
+            return result + AskValueMsg;
+        }
+        public string ToString(string spliterIndexElement)
+        {
+            string result = string.Empty;
+            if (Title == string.Empty)
+            {
+                result += Title + Environment.NewLine;
+            }
+            foreach (KeyValuePair<string, string> element in Elements)
+            {
+                result += $"{element.Key}{spliterIndexElement}{element.Value}{Environment.NewLine}";
+            }
+
+
+            return result + AskValueMsg;
+        }
     }
 }
