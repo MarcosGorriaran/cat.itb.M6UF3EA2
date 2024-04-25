@@ -5,7 +5,7 @@ using MongoDB.Driver;
 
 namespace UF3_test.connections
 {
-    public class MongoLocalConnection
+    public class MongoConnection
     {
         private static String URL = ConfigurationHelper.GetDBUrl();
 

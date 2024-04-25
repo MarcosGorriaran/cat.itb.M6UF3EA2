@@ -18,6 +18,10 @@ namespace cat.itb.M6UF3EA1.Models
             }
             return result;
         }
+        public static T ReadJSON(string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json);
+        }
         public static List<T> ReadJSONArrayFile(string path)
         {
             return JsonConvert.DeserializeObject<List<T>>(File.ReadAllText(path));

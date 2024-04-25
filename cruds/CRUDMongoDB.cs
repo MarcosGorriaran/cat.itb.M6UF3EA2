@@ -10,7 +10,7 @@ using UF3_test.connections;
 
 namespace cat.itb.M6UF3EA1.CRUD
 {
-    public class CRUDMongoDB<T>
+    public class CRUDMongoDB<T> where T : Model<T>
     {
         protected IMongoCollection<T> Collection;
 
@@ -21,9 +21,10 @@ namespace cat.itb.M6UF3EA1.CRUD
         }
         public CRUDMongoDB(string database, string collection)
         {
-            Collection = MongoLocalConnection.GetDatabase(database).GetCollection<T>(collection);
+            Collection = MongoConnection.GetDatabase(database).GetCollection<T>(collection);
         }
-        public CRUDMongoDB():this(ConfigurationHelper.GetDB(),ConfigurationHelper.GetDBUrl()) { }
+        public CRUDMongoDB(string collection) : this(ConfigurationHelper.GetDB(), collection) { }
+        public CRUDMongoDB():this(ConfigurationHelper.GetCollection()) { }
 
         public void Insert(T element)
         {
@@ -48,10 +49,11 @@ namespace cat.itb.M6UF3EA1.CRUD
         public List<T> Select(FilterDefinition<T> condition)
         {
             return Collection.Find(condition).ToList();
-        }
-        public List<BsonDocument> Select(FilterDefinition<T> filter, ProjectionDefinition<T> projection)
+         }
+        public List<BsonDocument> SelectBson(FilterDefinition<T> filter, ProjectionDefinition<T> projection)
         {
-            return Collection.Find(filter).Project(projection).ToList();
+            List<BsonDocument> bson = Collection.Find(filter).Project(projection).ToList();
+            return bson;
         }
         public void ImportJSONElements(params string[] json)
         {
