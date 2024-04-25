@@ -3,8 +3,6 @@ using System.Text.Json;
 using cat.itb.M6UF3EA1.Helpers;
 using cat.itb.M6UF3EA1.Models;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using UF3_test.connections;
 
@@ -42,6 +40,18 @@ namespace cat.itb.M6UF3EA1.CRUD
                 Insert(list[i]);
             }
         }
+        public long Update(FilterDefinition<T> filter, UpdateDefinition<T> update)
+        {
+            try
+            {
+                return Collection.UpdateMany(filter, update).MatchedCount;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+            
+        }
         public List<T> Select()
         {   
             return Collection.Find(_ => true).ToList();
@@ -50,20 +60,21 @@ namespace cat.itb.M6UF3EA1.CRUD
         {
             return Collection.Find(condition).ToList();
         }
-        public List<T> Select()
-        {
-            Collection.Find();
-        }
         public List<BsonDocument> SelectBson(FilterDefinition<T> filter, ProjectionDefinition<T> projection)
         {
             List<BsonDocument> bson = Collection.Find(filter).Project(projection).ToList();
             return bson;
         }
+        public List<T> Select(SortDefinition<T> sort)
+        {
+            return Collection.Find(_ => true).Sort(sort).ToList();
+        }
         public void ImportJSONElements(params string[] json)
         {
+            
             foreach(string element in json)
             {
-                Collection.InsertOne(JsonSerializer.Deserialize<T>(element));
+                MongoConnection.GetDatabase(ConfigurationHelper.GetDB()).GetCollection<BsonDocument>(Collection.CollectionNamespace.CollectionName).InsertOne(BsonDocument.Parse(element));
             }
         }
     }

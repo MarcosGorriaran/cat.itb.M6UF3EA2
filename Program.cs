@@ -28,6 +28,11 @@ public static class Driver
             {ActTwoAIndexValue,ACTTwoAMenuValue },
             {ActTwoBIndex, ActTwoShowBRestaurants},
             {ActThreeCIndex, ActThreeCRestaurants },
+            {"2D","Get ordered books" },
+            {"2E","Get big books"},
+            {"3A","Change product stock" },
+            {"3B","Add discount property"},
+            {"3C","Add caegory smartTV"},
             {ExitOption.ToString(),ExitText}
         },AskValue);
         string option;
@@ -37,7 +42,7 @@ public static class Driver
             Console.Write(mainMenu.ToString(SplitText));
             option = Console.ReadLine();
 
-            switch(option)
+            switch(option.Trim().ToUpper())
             {
                 case ActOneIndex:
                     EA2CRUD.ACT1InsertFiles();
@@ -59,6 +64,21 @@ public static class Driver
                     {
                         Console.WriteLine(error.Message);
                     }
+                    break;
+                case "2D":
+                    Console.WriteLine(EA2CRUD.ACT2DShowBook());
+                    break;
+                case "2E":
+                    Console.WriteLine(EA2CRUD.ACT2EShowHighPageBooks());
+                    break;
+                case "3A":
+                    Console.WriteLine(EA2CRUD.ACT3AUpdateProductStock());
+                    break;
+                case "3B":
+                    Console.WriteLine(EA2CRUD.ACT3BUpdateDiscount());
+                    break;
+                case "3C":
+                    Console.WriteLine(EA2CRUD.ACT3CUpdateCategory());
                     break;
                     
             }

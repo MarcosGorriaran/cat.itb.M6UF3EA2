@@ -11,7 +11,7 @@ namespace cat.itb.M6UF3EA1.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("_id")]
         [BsonElement("_id")]
-        public Oid Id { get; set; }
+        public ObjectId Id { get; set; }
         public Address address { get; set; }
         public string borough {  get; set; }
         public string cuisine { get; set; }

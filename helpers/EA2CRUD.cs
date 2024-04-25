@@ -40,9 +40,9 @@ namespace cat.itb.M6UF3EA2.helpers
         {
             const string FirstSearchTarget = "Manhattan";
             const string SecondSearchTarget = "Seafood";
-            CRUDMongoDB<Restaurant> crud = new CRUDMongoDB<Restaurant>();
+            CRUDMongoDB<Restaurant> crud = new CRUDMongoDB<Restaurant>("restaurant");
 
-            List<Restaurant> searchResult = crud.Select(Builders<Restaurant>.Filter.Eq(someone => someone.borough, FirstSearchTarget) & Builders<Restaurant>.Filter.Eq(someone => someone.borough, SecondSearchTarget));
+            List<Restaurant> searchResult = crud.Select(Builders<Restaurant>.Filter.Eq(someone => someone.borough, FirstSearchTarget) | Builders<Restaurant>.Filter.Eq(someone => someone.borough, SecondSearchTarget));
             string resultMsg = "";
 
             foreach (Restaurant someone in searchResult)
@@ -53,8 +53,6 @@ namespace cat.itb.M6UF3EA2.helpers
         }
         public static string ACT2CShowRestaurantsFromZipCode(string code)
         {
-            const string FirstSearchTarget = "Manhattan";
-            const string SecondSearchTarget = "Seafood";
             CRUDMongoDB<Restaurant> crud = new CRUDMongoDB<Restaurant>("restaurant");
 
             List<BsonDocument> searchResult = crud.SelectBson(Builders<Restaurant>.Filter.Eq(element => element.address.zipcode, code), Builders<Restaurant>.Projection.Include(element => element.name));
@@ -62,16 +60,66 @@ namespace cat.itb.M6UF3EA2.helpers
 
             foreach (BsonDocument element in searchResult)
             {
-                resultMsg += "Name: "+element.GetElement("name") + Environment.NewLine;
+                resultMsg += element.GetElement("name") + Environment.NewLine;
             }
             return resultMsg;
         }
-        public static string ACT3DShowBook()
+        public static string ACT2DShowBook()
         {
             CRUDMongoDB<Book> crud = new CRUDMongoDB<Book>("book");
 
-            string resultMsg;
+            string resultMsg=string.Empty;
+            List<Book> books = crud.Select(Builders<Book>.Sort.Ascending(element=>element.pageCount));
+            foreach (Book book in books)
+            {
+                resultMsg += $"TITOL: {book.title}, Author: [{Environment.NewLine}";
+                foreach(string author in book.authors)
+                {
+                    resultMsg+= author + Environment.NewLine;
+                }
+                resultMsg += "]"+Environment.NewLine;
+            }
 
+            return resultMsg;
+        }
+        public static string ACT2EShowHighPageBooks()
+        {
+            CRUDMongoDB<Book> crud = new CRUDMongoDB<Book>("book");
+
+            string resultMsg = string.Empty;
+            List<Book> books = crud.Select(Builders<Book>.Filter.Gt(element => element.pageCount,250));
+
+            foreach(Book book in books)
+            {
+                resultMsg += $"Title: {book.title}, isbn: {book.isbn}, pageCount: {book.pageCount}"+Environment.NewLine;
+            }
+
+            return resultMsg;
+        }
+        public static int ACT3AUpdateProductStock()
+        {
+            CRUDMongoDB<Product> crud = new CRUDMongoDB<Product>("product");
+
+            return Convert.ToInt32(crud.Update(Builders<Product>.Filter.Gte(element=>element.price,600) & Builders<Product>.Filter.Lte(element=>element.price,1000),
+                Builders<Product>.Update.Set(element=>element.stock,150)));
+        }
+        public static int ACT3BUpdateDiscount()
+        {
+            CRUDMongoDB<Product> crud = new CRUDMongoDB<Product>("product");
+
+            return Convert.ToInt32(crud.Update(Builders<Product>.Filter.Gt(element=>element.stock,100), Builders<Product>.Update.Set(element => element.discount, 100)));
+        }
+        public static int ACT3CUpdateCategory()
+        {
+            CRUDMongoDB<Product> crud = new CRUDMongoDB<Product>("product");
+
+            return Convert.ToInt32(crud.Update(Builders<Product>.Filter.Eq(element => element.name, "Apple TV"), Builders<Product>.Update.AddToSet(element => element.categories, "smartTV")));
+        }
+        public static int ACT3DUpdateZipCode()
+        {
+            CRUDMongoDB<Restaurant> crud = new CRUDMongoDB<Restaurant>("restaurant");
+
+            return Convert.ToInt32(crud.Update(Builders<Restaurant>.Filter.Eq(element => element.), Builders<Restaurant>.Update.Set(element => element., "smartTV")));
         }
     }
         
