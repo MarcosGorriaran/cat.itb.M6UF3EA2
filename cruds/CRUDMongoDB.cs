@@ -49,7 +49,11 @@ namespace cat.itb.M6UF3EA1.CRUD
         public List<T> Select(FilterDefinition<T> condition)
         {
             return Collection.Find(condition).ToList();
-         }
+        }
+        public List<T> Select()
+        {
+            Collection.Find();
+        }
         public List<BsonDocument> SelectBson(FilterDefinition<T> filter, ProjectionDefinition<T> projection)
         {
             List<BsonDocument> bson = Collection.Find(filter).Project(projection).ToList();

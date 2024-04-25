@@ -2,6 +2,7 @@
 using cat.itb.M6UF3EA1.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Security.Cryptography.X509Certificates;
 
 namespace cat.itb.M6UF3EA2.helpers
 {
@@ -64,6 +65,13 @@ namespace cat.itb.M6UF3EA2.helpers
                 resultMsg += "Name: "+element.GetElement("name") + Environment.NewLine;
             }
             return resultMsg;
+        }
+        public static string ACT3DShowBook()
+        {
+            CRUDMongoDB<Book> crud = new CRUDMongoDB<Book>("book");
+
+            string resultMsg;
+
         }
     }
         
