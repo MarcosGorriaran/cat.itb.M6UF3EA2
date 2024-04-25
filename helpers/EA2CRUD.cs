@@ -2,7 +2,7 @@
 using cat.itb.M6UF3EA1.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using System.Security.Cryptography.X509Certificates;
+using UF3_test.connections;
 
 namespace cat.itb.M6UF3EA2.helpers
 {
@@ -25,15 +25,12 @@ namespace cat.itb.M6UF3EA2.helpers
         public static string ACT2AGetFriends()
         {
             const string SearchTarget = "Arianna Cramer";
+            
             CRUDMongoDB<People> crud = new CRUDMongoDB<People>();
-
-            People searchResult = crud.Select(Builders<People>.Filter.Eq(someone=>someone.name,SearchTarget)).First();
+            BsonDocument searchResult = crud.Select(Builders<BsonDocument>.Filter.ElemMatch("friends",Builders<BsonElement>.Filter.Eq("name",SearchTarget))).First();
             string resultMsg = "";
 
-            foreach(Friend someone in searchResult.friends)
-            {
-                resultMsg += someone + Environment.NewLine;
-            }
+            resultMsg += searchResult.GetElement("friends");
             return resultMsg;
         }
         public static string ACT2BGetRestaurant()
@@ -42,10 +39,10 @@ namespace cat.itb.M6UF3EA2.helpers
             const string SecondSearchTarget = "Seafood";
             CRUDMongoDB<Restaurant> crud = new CRUDMongoDB<Restaurant>("restaurant");
 
-            List<Restaurant> searchResult = crud.Select(Builders<Restaurant>.Filter.Eq(someone => someone.borough, FirstSearchTarget) | Builders<Restaurant>.Filter.Eq(someone => someone.borough, SecondSearchTarget));
+            List<BsonDocument> searchResult = crud.Select(Builders<BsonDocument>.Filter.Eq("borough", FirstSearchTarget) | Builders<BsonDocument>.Filter.Eq("borough", SecondSearchTarget));
             string resultMsg = "";
 
-            foreach (Restaurant someone in searchResult)
+            foreach (BsonDocument someone in searchResult)
             {
                 resultMsg += someone + Environment.NewLine;
             }
@@ -55,7 +52,7 @@ namespace cat.itb.M6UF3EA2.helpers
         {
             CRUDMongoDB<Restaurant> crud = new CRUDMongoDB<Restaurant>("restaurant");
 
-            List<BsonDocument> searchResult = crud.SelectBson(Builders<Restaurant>.Filter.Eq(element => element.address.zipcode, code), Builders<Restaurant>.Projection.Include(element => element.name));
+            List<BsonDocument> searchResult = crud.Select(Builders<BsonDocument>.Filter.Eq("address.zipcode", code), Builders<BsonDocument>.Projection.Include("name").Exclude("_id"));
             string resultMsg = "";
 
             foreach (BsonDocument element in searchResult)
@@ -69,15 +66,11 @@ namespace cat.itb.M6UF3EA2.helpers
             CRUDMongoDB<Book> crud = new CRUDMongoDB<Book>("book");
 
             string resultMsg=string.Empty;
-            List<Book> books = crud.Select(Builders<Book>.Sort.Ascending(element=>element.pageCount));
-            foreach (Book book in books)
+            List<BsonDocument> books = crud.Select(Builders<BsonDocument>.Sort.Ascending("pageCount"));
+            foreach (BsonDocument book in books)
             {
-                resultMsg += $"TITOL: {book.title}, Author: [{Environment.NewLine}";
-                foreach(string author in book.authors)
-                {
-                    resultMsg+= author + Environment.NewLine;
-                }
-                resultMsg += "]"+Environment.NewLine;
+                resultMsg += book;
+                resultMsg += Environment.NewLine;
             }
 
             return resultMsg;
@@ -87,11 +80,11 @@ namespace cat.itb.M6UF3EA2.helpers
             CRUDMongoDB<Book> crud = new CRUDMongoDB<Book>("book");
 
             string resultMsg = string.Empty;
-            List<Book> books = crud.Select(Builders<Book>.Filter.Gt(element => element.pageCount,250));
+            List<BsonDocument> books = crud.Select(Builders<BsonDocument>.Filter.Gt("pageCount",250),Builders<BsonDocument>.Projection.Include("title").Include("isbn").Include("pageCount").Exclude("_id"));
 
-            foreach(Book book in books)
+            foreach(BsonDocument book in books)
             {
-                resultMsg += $"Title: {book.title}, isbn: {book.isbn}, pageCount: {book.pageCount}"+Environment.NewLine;
+                resultMsg += book+Environment.NewLine;
             }
 
             return resultMsg;
@@ -100,26 +93,71 @@ namespace cat.itb.M6UF3EA2.helpers
         {
             CRUDMongoDB<Product> crud = new CRUDMongoDB<Product>("product");
 
-            return Convert.ToInt32(crud.Update(Builders<Product>.Filter.Gte(element=>element.price,600) & Builders<Product>.Filter.Lte(element=>element.price,1000),
-                Builders<Product>.Update.Set(element=>element.stock,150)));
+            return Convert.ToInt32(crud.Update(Builders<BsonDocument>.Filter.Gte("price",600) & Builders<BsonDocument>.Filter.Lte("pageCount", 1000),
+                Builders<BsonDocument>.Update.Set("stock",150)));
         }
         public static int ACT3BUpdateDiscount()
         {
             CRUDMongoDB<Product> crud = new CRUDMongoDB<Product>("product");
 
-            return Convert.ToInt32(crud.Update(Builders<Product>.Filter.Gt(element=>element.stock,100), Builders<Product>.Update.Set(element => element.discount, 100)));
+            return Convert.ToInt32(crud.Update(Builders<BsonDocument>.Filter.Gt("stock",100), Builders<BsonDocument>.Update.Set("discount", 100)));
         }
         public static int ACT3CUpdateCategory()
         {
             CRUDMongoDB<Product> crud = new CRUDMongoDB<Product>("product");
 
-            return Convert.ToInt32(crud.Update(Builders<Product>.Filter.Eq(element => element.name, "Apple TV"), Builders<Product>.Update.AddToSet(element => element.categories, "smartTV")));
+            return Convert.ToInt32(crud.Update(Builders<BsonDocument>.Filter.Eq("name", "Apple TV"), Builders<BsonDocument>.Update.AddToSet("categories", "smartTV")));
         }
         public static int ACT3DUpdateZipCode()
         {
+            const string SearchTarget = "Charles Street";
+            CRUDMongoDB<Restaurant> crud = new CRUDMongoDB<Restaurant>("restaurant");
+            return Convert.ToInt32(crud.Update(Builders<BsonDocument>.Filter.Eq("address.street",SearchTarget), Builders<BsonDocument>.Update.Set("address.zipcode", "30033")));
+        }
+        public static string ACT3EUpdateAndShow()
+        {
+            CRUDMongoDB<Restaurant> crud = new CRUDMongoDB<Restaurant>("restaurant");
+            string resultMsg = string.Empty;
+
+            FilterDefinition<BsonDocument> target = Builders<BsonDocument>.Filter.Eq("cuisine", "Caribbean");
+            resultMsg+=crud.Update(target, Builders<BsonDocument>.Update.Set("stars","*****"));
+            resultMsg += " rows updated" + Environment.NewLine;
+            resultMsg += string.Join('\n',crud.Select(target));
+            
+            return resultMsg;
+        }
+        public static int ACT4ADeleteProducts()
+        {
+            CRUDMongoDB<Product> crud = new CRUDMongoDB<Product>("product");
+
+            return Convert.ToInt32(crud.Delete(Builders<BsonDocument>.Filter.Gte("price",400) & Builders<BsonDocument>.Filter.Lte("price", 600)));
+        }
+        public static int ACT4BDeleteProduct()
+        {
+            CRUDMongoDB<Product> crud = new CRUDMongoDB<Product>("product");
+
+            return Convert.ToInt32(crud.Delete(Builders<BsonDocument>.Filter.Eq("name", "Mac mini")));
+        }
+        public static int ACT4CDeleteRestaurant()
+        {
             CRUDMongoDB<Restaurant> crud = new CRUDMongoDB<Restaurant>("restaurant");
 
-            return Convert.ToInt32(crud.Update(Builders<Restaurant>.Filter.Eq(element => element.), Builders<Restaurant>.Update.Set(element => element., "smartTV")));
+            return Convert.ToInt32(crud.Delete(Builders<BsonDocument>.Filter.Eq("cuisine", "Delicatessen")));
+        }
+        public static int ACT4DDeleteElementFromArray()
+        {
+            CRUDMongoDB<Product> crud = new CRUDMongoDB<Product>("product");
+
+            return Convert.ToInt32(crud.Update(Builders<BsonDocument>.Filter.Eq("name","MacBook Air"),Builders<BsonDocument>.Update.PopFirst("categories")));
+        }
+        public static string dropCollection(string database, string collection)
+        {
+            IMongoCollection<BsonDocument> conn = MongoConnection.GetDatabase(database).GetCollection<BsonDocument>(collection);
+            string resultMsg = conn.CountDocuments(Builders<BsonDocument>.Filter.Empty) +" documents"+Environment.NewLine;
+            conn.Database.DropCollection(conn.CollectionNamespace.CollectionName);
+            resultMsg += "Remaining Collections: "+Environment.NewLine;
+            resultMsg += string.Join(Environment.NewLine,conn.Database.ListCollectionNames().ToList());
+            return resultMsg;
         }
     }
         

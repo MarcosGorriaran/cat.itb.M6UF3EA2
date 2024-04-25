@@ -33,6 +33,13 @@ public static class Driver
             {"3A","Change product stock" },
             {"3B","Add discount property"},
             {"3C","Add caegory smartTV"},
+            {"3D","Change zipcode" },
+            {"3E","Update and show"},
+            {"4A","Delete products between values" },
+            {"4B","Delete product Mac mini"},
+            {"4C","Delete Delicatessen restaurants"},
+            {"4D","Delete first category from MacBook air"},
+            {"5A","Drop Collection"},
             {ExitOption.ToString(),ExitText}
         },AskValue);
         string option;
@@ -54,7 +61,7 @@ public static class Driver
                     Console.WriteLine(EA2CRUD.ACT2BGetRestaurant());
                     break;
                 case ActThreeCIndex:
-                    Console.WriteLine(AskZipCode);
+                    Console.Write(AskZipCode);
                     string zipcode = Console.ReadLine();
                     try
                     {
@@ -80,7 +87,32 @@ public static class Driver
                 case "3C":
                     Console.WriteLine(EA2CRUD.ACT3CUpdateCategory());
                     break;
-                    
+                case "3D":
+                    Console.WriteLine(EA2CRUD.ACT3DUpdateZipCode());
+                    break;
+                case "3E":
+                    Console.WriteLine(EA2CRUD.ACT3EUpdateAndShow());
+                    break;
+                case "4A":
+                    Console.WriteLine(EA2CRUD.ACT4ADeleteProducts());
+                    break;
+                case "4B":
+                    Console.WriteLine(EA2CRUD.ACT4BDeleteProduct());
+                    break;
+                case "4C":
+                    Console.WriteLine(EA2CRUD.ACT4CDeleteRestaurant());
+                    break;
+                case "4D":
+                    Console.WriteLine(EA2CRUD.ACT4DDeleteElementFromArray());
+                    break;
+                case "5A":
+                    Console.Write("Target database: ");
+                    string database = Console.ReadLine();
+                    Console.Write("Target collection: ");
+                    string colection = Console.ReadLine();
+
+                    Console.WriteLine(EA2CRUD.dropCollection(database,colection));
+                    break;
             }
         }while(option != ExitOption);
         
